@@ -1,0 +1,44 @@
+{
+  "name": "nodeboot-iam-basic-starter",
+  "version": "1.0.0-alpha",
+  "description": "iam with an basic and minimal oauth2 implementation",
+  "main": "src/main/Index.js",
+  "scripts": {
+    "test": "nyc --reporter=html --reporter=json-summary mocha  'src/test/**/SecurityMiddleware.test.js' --exit --require mocha-suppress-logs",
+    "badges": "badges4cov --source=nyc_json --nyc_json_file_location=./coverage/coverage-summary.json --output_folder=./coverage",
+    "testv": "nyc --reporter=html --reporter=json-summary mocha 'src/test/**/SecurityMiddleware.test.js' --exit "
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nodeboot/nodeboot-iam-basic-starter"
+  },
+  "keywords": [
+    "npm",
+    "database",
+    "starter"
+  ],
+  "author": "jrichardsz",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/nodeboot/nodeboot-iam-basic-starter/issues"
+  },
+  "homepage": "https://github.com/nodeboot/nodeboot-iam-basic-starter",
+  "dependencies": {
+    "badges4cov": "git+https://github.com/jrichardsz/badges4cov.git",
+    "jsonwebtoken": "^8.5.1",
+    "knex": "^0.95.5",
+    "mysql": "^2.18.1",
+    "npm": "^8.4.0",
+    "pg": "^8.6.0"
+  },
+  "devDependencies": {
+    "badgs": "^1.1.1",
+    "chai": "4.2.0",
+    "coverage-percentage": "0.0.2",
+    "mocha": "8.1.3",
+    "mocha-suppress-logs": "^0.3.1",
+    "nyc": "^15.1.0",
+    "meta-js": "git+https://github.com/jrichardsz/meta-js.git#1.0.5-pre-alpha",
+    "yargs": "^17.3.1"
+  }
+}
