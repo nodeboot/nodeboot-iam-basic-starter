@@ -128,3 +128,6 @@ app.get('/user/:id', middlewareClass("route2:scope2"), function(req, res) {
 
 
 app.listen(process.env.PORT || 8080);
+
+//https://stackoverflow.com/questions/19460481/get-route-definition-in-middleware
+//https://stackoverflow.com/a/28086959/3957754

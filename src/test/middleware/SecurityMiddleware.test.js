@@ -97,15 +97,22 @@ describe('SecurityMiddleware: ensureAuthorization', function() {
     var response = await securityMiddleware.ensureAuthorization(req, new res, null);
     expect(response.code).to.equal(401);
   });
-  it('should return 403 on valid token but db error or unknown subject', async function() {
+  it('should return 403 on valid token on db error or unknown subject', async function() {
 
-    var token = jwt.sign({subject_id:"jane_doe"}, "secret", {
+    var token1 = jwt.sign({subject_id:"jane_doe"}, "secret", {
+      expiresIn: '3600s'
+    });
+    var token2 = jwt.sign({subject_id:"kurt_weller"}, "secret", {
       expiresIn: '3600s'
     });
 
-    var req = {};
-    req.headers = {
-      authorization: "Bearer "+token
+    var req1 = {};
+    req1.headers = {
+      authorization: "Bearer "+token1
+    };
+    var req2 = {};
+    req2.headers = {
+      authorization: "Bearer "+token2
     };
     var res = function() {
       this.json = function(data) {
@@ -120,53 +127,26 @@ describe('SecurityMiddleware: ensureAuthorization', function() {
       }
     }
 
-    var dbSession = function(){
-      return new function(){
-        this.select = function(){
-          return new function(){
-            this.from = function(){
-              return new function(){
-                this.where = function(){
-                  return new Promise((resolve, reject) => {
-                    reject("im a jerk")
-                  })
-                }
-              }
-            }
+    function subjectDataService(){
+      this.findSubjectByIdentifier = function(identifier){
+        return new Promise((resolve, reject) => {
+          if(identifier=="jane_doe"){
+            reject("im a jerk")
+          }else if(identifier=="kurt_weller"){
+            resolve()
           }
-        }
+        })
       }
     }
 
     var securityMiddleware = new SecurityMiddleware();
+    securityMiddleware.subjectDataService = new subjectDataService();
     securityMiddleware.configuration = configuration;
-    securityMiddleware.dbSession = new dbSession();
-    var response = await securityMiddleware.ensureAuthorization(req, new res, null);
-    expect(response.code).to.equal(403);
 
-    var dbSession2 = function(){
-      return new function(){
-        this.select = function(){
-          return new function(){
-            this.from = function(){
-              return new function(){
-                this.where = function(){
-                  return new Promise((resolve, reject) => {
-                    resolve()
-                  })
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-
-    securityMiddleware.configuration = configuration;
-    securityMiddleware.dbSession = new dbSession2();
-    var response = await securityMiddleware.ensureAuthorization(req, new res, null);
-    expect(response.code).to.equal(403);
-
+    var response1 = await securityMiddleware.ensureAuthorization(req1, new res, null);
+    expect(response1.code).to.equal(403);
+    var response2 = await securityMiddleware.ensureAuthorization(req2, new res, null);
+    expect(response2.code).to.equal(403);
   });
   it('should return 403 on valid token and valid subject but without permission', async function() {
 
@@ -191,39 +171,22 @@ describe('SecurityMiddleware: ensureAuthorization', function() {
       }
     }
 
-    var dbSession = function(){
-      return new function(){
-        this.select = function(){
-          return new function(){
-            this.from = function(){
-              return new function(){
-                this.where = function(){
-                  return new Promise((resolve, reject) => {
-                    resolve({})
-                  })
-                }
-              }
-            }
-          }
-        }
-
-        this.raw = function(){
-          return new Promise((resolve, reject) => {
-            resolve([[{has_permission:"false"}]])
-          })
-        }
+    function iamDataService(){
+      this.hasPermissions = function(){
+        return new Promise((resolve, reject) => {
+          resolve([[{has_permission:"false"}]])
+        })
       }
     }
 
     var securityMiddleware = new SecurityMiddleware("foo:bar");
     securityMiddleware.configuration = configuration;
-    securityMiddleware.dbSession = new dbSession();
+    securityMiddleware.iamDataService = new iamDataService();
     var response = await securityMiddleware.ensureAuthorization(req, new res, null);
     expect(response.code).to.equal(403);
 
 
   });
-
   it('should return a valid callback on valid token, subject and permission', async function() {
 
     var token = jwt.sign({subject_id:"jane_doe"}, "secret", {
@@ -247,34 +210,18 @@ describe('SecurityMiddleware: ensureAuthorization', function() {
       }
     }
 
-    var dbSession = function(){
-      return new function(){
-        this.select = function(){
-          return new function(){
-            this.from = function(){
-              return new function(){
-                this.where = function(){
-                  return new Promise((resolve, reject) => {
-                    resolve({})
-                  })
-                }
-              }
-            }
-          }
-        }
-
-        this.raw = function(){
-          return new Promise((resolve, reject) => {
-            resolve([[{has_permission:"true"}]])
-          })
-        }
+    function iamDataService(){
+      this.hasPermissions = function(){
+        return new Promise((resolve, reject) => {
+          resolve([[{has_permission:"true"}]])
+        })
       }
     }
 
     var securityMiddleware = new SecurityMiddleware("foo:bar");
     securityMiddleware.configuration = configuration;
-    securityMiddleware.dbSession = new dbSession();
-    await securityMiddleware.ensureAuthorization(req, new res, function(){});    
+    securityMiddleware.iamDataService = new iamDataService();
+    await securityMiddleware.ensureAuthorization(req, new res, function(){});
   });
 
 });

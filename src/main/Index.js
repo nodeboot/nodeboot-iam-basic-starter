@@ -16,10 +16,10 @@ function IamSimpleStarter() {
         console.log("iam tables already exist");
       } else {
         console.log("iam tables don't exist. Creating...");
-        dbSession.createTable('user', async (table)=>{
+        dbSession.createTable('subject', async (table)=>{
           table.increments('id').primary();
-          table.string('username', 25).unique().notNullable();
-          table.string('password', 255).notNullable();
+          table.string('identifier', 25).unique().notNullable();
+          table.string('secret', 255).notNullable();
           table.string('role', 50).notNullable();
         }).then(async function(){
           dbSession.createTable('iam', async (table)=>{
