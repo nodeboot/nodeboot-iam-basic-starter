@@ -1,10 +1,6 @@
-const NodeInternalModulesHook = require('meta-js').NodeInternalModulesHook;
-NodeInternalModulesHook._compile();
 var chai = require('chai');
 var expect = chai.expect;
 var assert = chai.assert;
-var requireOrigin = require
-const jwt = require('jsonwebtoken')
 
 const SubjectDataService = require("../../../../src/main/services/data/SubjectDataService.js");
 
@@ -28,8 +24,8 @@ describe('SubjectDataService: findSubjectByIdentifier', function() {
       }
     }
 
-    var subjectDataService = new SubjectDataService();
-    subjectDataService.dbSession = new dbSession();
+    var dbSession = new dbSession();
+    var subjectDataService = new SubjectDataService(dbSession);
     var ex;
     try {
       await subjectDataService.findSubjectByIdentifier("foo");
@@ -59,8 +55,8 @@ describe('SubjectDataService: findSubjectByIdentifier', function() {
       }
     }
 
-    var subjectDataService = new SubjectDataService();
-    subjectDataService.dbSession = new dbSession();
+    var dbSession = new dbSession();
+    var subjectDataService = new SubjectDataService(dbSession);
     var subject = await subjectDataService.findSubjectByIdentifier("foo");
     expect(subject).to.equal(undefined);
 

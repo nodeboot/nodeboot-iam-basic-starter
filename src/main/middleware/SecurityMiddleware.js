@@ -1,17 +1,13 @@
 const jwt = require('jsonwebtoken')
 const ObjectHelper = require('../common/object/ObjectHelper.js')
 
-@Service
-function SecurityMiddleware(permissionRawString){
+function SecurityMiddleware(permissionRawString, configuration, subjectDataService, iamDataService){
 
-  @Autowire(name = "subjectDataService")
-  this.subjectDataService;
+  this.subjectDataService = subjectDataService;
 
-  @Autowire(name = "iamDataService")
-  this.iamDataService;
+  this.iamDataService = iamDataService;
 
-  @Autowire(name = "configuration")
-  this.configuration;
+  this.configuration = configuration;
 
   this.permissionsByRouteStrings;
 
@@ -86,7 +82,7 @@ function SecurityMiddleware(permissionRawString){
     }
 
     var permissionScope = permissionRawString.split(":");
-    var validator = await this.iamDataService.hasPermissions(subject.role, permissionScope[0].trim(), permissionScope[0].trim());
+    var validator = await this.iamDataService.hasPermissions(subject.role, permissionScope[0].trim(), permissionScope[1].trim());
     if(validator.has_permission === "false"){
       return res.json({
         code: 403,

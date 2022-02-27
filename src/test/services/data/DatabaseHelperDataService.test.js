@@ -1,6 +1,3 @@
-const NodeInternalModulesHook = require('meta-js').NodeInternalModulesHook;
-NodeInternalModulesHook._compile();
-
 var chai = require('chai');
 var expect = chai.expect;
 var assert = chai.assert;

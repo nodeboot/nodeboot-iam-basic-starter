@@ -19,8 +19,7 @@ describe('SecurityMiddleware: ensureAuthorization', function() {
     }
 
     var configuration = {}
-    var securityMiddleware = new SecurityMiddleware();
-    securityMiddleware.configuration = configuration;
+    var securityMiddleware = new SecurityMiddleware(null, configuration);
     var response = await securityMiddleware.ensureAuthorization(req, new res, null);
     expect(response.code).to.equal(500);
   });
@@ -39,8 +38,7 @@ describe('SecurityMiddleware: ensureAuthorization', function() {
         }
       }
     }
-    var securityMiddleware = new SecurityMiddleware();
-    securityMiddleware.configuration = configuration;
+    var securityMiddleware = new SecurityMiddleware(null, configuration);
     var response = await securityMiddleware.ensureAuthorization(req, new res, null);
     expect(response.code).to.equal(401);
   });
@@ -62,8 +60,8 @@ describe('SecurityMiddleware: ensureAuthorization', function() {
         }
       }
     }
-    var securityMiddleware = new SecurityMiddleware();
-    securityMiddleware.configuration = configuration;
+
+    var securityMiddleware = new SecurityMiddleware(null, configuration);
     var response = await securityMiddleware.ensureAuthorization(req, new res, null);
     expect(response.code).to.equal(401);
 
@@ -92,12 +90,11 @@ describe('SecurityMiddleware: ensureAuthorization', function() {
         }
       }
     }
-    var securityMiddleware = new SecurityMiddleware();
-    securityMiddleware.configuration = configuration;
+    var securityMiddleware = new SecurityMiddleware(null, configuration);
     var response = await securityMiddleware.ensureAuthorization(req, new res, null);
     expect(response.code).to.equal(401);
   });
-  it('should return 403 on valid token on db error or unknown subject', async function() {
+  it('should return 403 when token is valid but there is a db error or unknown subject', async function() {
 
     var token1 = jwt.sign({subject_id:"jane_doe"}, "secret", {
       expiresIn: '3600s'
@@ -139,9 +136,8 @@ describe('SecurityMiddleware: ensureAuthorization', function() {
       }
     }
 
-    var securityMiddleware = new SecurityMiddleware();
-    securityMiddleware.subjectDataService = new subjectDataService();
-    securityMiddleware.configuration = configuration;
+    var subjectDataService = new subjectDataService();
+    var securityMiddleware = new SecurityMiddleware(null, configuration, subjectDataService);
 
     var response1 = await securityMiddleware.ensureAuthorization(req1, new res, null);
     expect(response1.code).to.equal(403);
@@ -174,18 +170,24 @@ describe('SecurityMiddleware: ensureAuthorization', function() {
     function iamDataService(){
       this.hasPermissions = function(){
         return new Promise((resolve, reject) => {
-          resolve([[{has_permission:"false"}]])
+          resolve({has_permission:"false"})
         })
       }
     }
 
-    var securityMiddleware = new SecurityMiddleware("foo:bar");
-    securityMiddleware.configuration = configuration;
-    securityMiddleware.iamDataService = new iamDataService();
+    function subjectDataService(){
+      this.findSubjectByIdentifier = function(identifier){
+        return new Promise((resolve, reject) => {
+          resolve({role:"foo"})
+        })
+      }
+    }
+
+    var subjectDataService = new subjectDataService();
+    var iamDataService = new iamDataService();
+    var securityMiddleware = new SecurityMiddleware("foo:bar", configuration, subjectDataService, iamDataService);
     var response = await securityMiddleware.ensureAuthorization(req, new res, null);
     expect(response.code).to.equal(403);
-
-
   });
   it('should return a valid callback on valid token, subject and permission', async function() {
 
@@ -213,14 +215,22 @@ describe('SecurityMiddleware: ensureAuthorization', function() {
     function iamDataService(){
       this.hasPermissions = function(){
         return new Promise((resolve, reject) => {
-          resolve([[{has_permission:"true"}]])
+          resolve([[{has_permission:"false"}]])
         })
       }
     }
 
-    var securityMiddleware = new SecurityMiddleware("foo:bar");
-    securityMiddleware.configuration = configuration;
-    securityMiddleware.iamDataService = new iamDataService();
+    function subjectDataService(){
+      this.findSubjectByIdentifier = function(identifier){
+        return new Promise((resolve, reject) => {
+          resolve({role:"foo"})
+        })
+      }
+    }
+
+    var subjectDataService = new subjectDataService();
+    var iamDataService = new iamDataService();
+    var securityMiddleware = new SecurityMiddleware("foo:bar", configuration, subjectDataService, iamDataService);
     await securityMiddleware.ensureAuthorization(req, new res, function(){});
   });
 

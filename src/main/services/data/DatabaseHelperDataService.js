@@ -1,4 +1,3 @@
-@Service
 function DatabaseHelperDataService() {
 
   this.init = (dbSession) => {

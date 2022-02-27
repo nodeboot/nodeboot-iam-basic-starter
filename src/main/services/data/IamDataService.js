@@ -1,11 +1,9 @@
-@Service
-function IamDataService() {
+function IamDataService(dbSession) {
 
-  @Autowire(name = "dbSession")
-  this.dbSession;
+  this.dbSession = dbSession;
 
   //TODO: validate permissionRawString syntax
-  
+
   this.hasPermissionSqlString = `
   select case when
   count(*) > 0

@@ -1,8 +1,6 @@
-@Service
-function SubjectDataService() {
+function SubjectDataService(dbSession) {
 
-  @Autowire(name = "dbSession")
-  this.dbSession;
+  this.dbSession = dbSession;
 
   this.findSubjectByIdentifier = (identifier) => {
     return new Promise(async (resolve, reject) => {

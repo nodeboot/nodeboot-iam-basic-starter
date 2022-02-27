@@ -1,10 +1,6 @@
-const NodeInternalModulesHook = require('meta-js').NodeInternalModulesHook;
-NodeInternalModulesHook._compile();
 var chai = require('chai');
 var expect = chai.expect;
 var assert = chai.assert;
-var requireOrigin = require
-const jwt = require('jsonwebtoken')
 
 const IamDataService = require("../../../../src/main/services/data/IamDataService.js");
 
@@ -20,8 +16,8 @@ describe('IamDataService: hasPermissions', function() {
       }
     }
 
-    var iamDataService = new IamDataService();
-    iamDataService.dbSession = new dbSession();
+    var dbSession = new dbSession();
+    var iamDataService = new IamDataService(dbSession);
     var ex;
     try {
       await iamDataService.hasPermissions("foo");
@@ -43,8 +39,8 @@ describe('IamDataService: hasPermissions', function() {
       }
     }
 
-    var iamDataService = new IamDataService();
-    iamDataService.dbSession = new dbSession();
+    var dbSession = new dbSession();
+    var iamDataService = new IamDataService(dbSession);
     var response = await iamDataService.hasPermissions("foo");
     expect(response.has_permission).to.equal("false");
 
