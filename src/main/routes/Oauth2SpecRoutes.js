@@ -1,8 +1,9 @@
 const escape = require('escape-html');
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt');
+const SubjectDataService = require('../services/data/SubjectDataService.js');
 
-function Oauth2SpecRoutes() {
+function Oauth2SpecRoutes(subjectDataService, configuration, expressInstance) {
 
   this.token = async (req, res) => {
 
@@ -27,7 +28,7 @@ function Oauth2SpecRoutes() {
       subject_credential = escape(req.body.client_secret)
     }
 
-    var subject = await this.findSubjectByIdentifier(subject_id);
+    var subject = await this.subjectDataService.findSubjectByIdentifier(subject_id);
     var isItsCredential = await bcrypt.compare(safeReceivedPassword, subject[0].credential)
     if (isItsCredential===true) {
       let response = {
@@ -45,31 +46,6 @@ function Oauth2SpecRoutes() {
         message: "incorrect credentials"
       };
       return res.json(response);
-    }
-  }
-
-  this.findSubjectByIdentifier = (identifier) => {
-    return new Promise(async (resolve, reject) => {
-      try {
-        var user = await this.dbSession
-          .select('*')
-          .from('subject')
-          .where('identifier', identifier);
-        resolve(user);
-      } catch (err) {
-        console.log(err);
-        reject("Failed to find user by name");
-      }
-    });
-  }
-
-  generateJwtToken = function(payload, secret, tokenLife) {
-    if (tokenLife) {
-      return jwt.sign(payload, secret, {
-        expiresIn: tokenLife
-      });
-    } else {
-      return jwt.sign(subject, secret)
     }
   }
 }

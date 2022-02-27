@@ -6,7 +6,7 @@
   "scripts": {
     "test": "nyc --reporter=html --reporter=json-summary mocha  'src/test/**/*.test.js' --exit --require mocha-suppress-logs",
     "badges": "badges4cov --source=nyc_json --nyc_json_file_location=./coverage/coverage-summary.json --output_folder=./coverage",
-    "testv": "nyc --reporter=html --reporter=json-summary mocha 'src/test/**/DatabaseHelperDataService.test.js' --exit "
+    "testv": "nyc --reporter=html --reporter=json-summary mocha 'src/test/**/*.test.js' --exit "
   },
   "repository": {
     "type": "git",
@@ -25,11 +25,14 @@
   "homepage": "https://github.com/nodeboot/nodeboot-iam-basic-starter",
   "dependencies": {
     "badges4cov": "git+https://github.com/jrichardsz/badges4cov.git",
+    "bcrypt": "^5.0.1",
+    "escape-html": "^1.0.3",
     "jsonwebtoken": "^8.5.1",
     "knex": "^0.95.5",
     "mysql": "^2.18.1",
     "npm": "^8.4.0",
-    "pg": "^8.6.0"
+    "pg": "^8.6.0",
+    "sinon": "^13.0.1"
   },
   "devDependencies": {
     "badgs": "^1.1.1",
