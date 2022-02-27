@@ -130,7 +130,7 @@ describe('Oauth2SpecService: generateToken', function() {
     expect(response1.code).to.equal(401);
     myStub.restore()
   });
-  it('should return 200 and valid access_token, on valid subject, secret, jwt_secret', async function() {
+  it('should return 200 and valid access_token, on valid user subject, secret, jwt_secret', async function() {
     var configuration = {
       nodeboot:{
         iam_simple:{
@@ -152,6 +152,35 @@ describe('Oauth2SpecService: generateToken', function() {
 
     var oauth2SpecService = new Oauth2SpecService(new subjectDataService(), configuration);
     var response1 = await oauth2SpecService.generateToken({grant_type:"password", username:"foo", password:"bar"});
+    assert(response1);
+    expect(response1.code).to.equal(200);
+    assert(response1.content);
+    assert(response1.content.access_token);
+    expect(response1.content.access_token.length>25).to.equal(true);
+    myStub.restore()
+  });
+  it('should return 200 and valid access_token, on valid client subject, secret, jwt_secret', async function() {
+    var configuration = {
+      nodeboot:{
+        iam_simple:{
+          jwtSecret:"secret",
+          jwtExpiration:"1800s"
+        }
+      }
+    }
+
+    function subjectDataService(){
+      this.findSubjectByIdentifier = function(identifier){
+        return new Promise((resolve, reject) => {
+          resolve([{role:"foo", secret:"bar"}])
+        })
+      }
+    }
+
+    var myStub = sinon.stub(bcrypt, 'compare').callsFake(() => Promise.resolve(true))
+
+    var oauth2SpecService = new Oauth2SpecService(new subjectDataService(), configuration);
+    var response1 = await oauth2SpecService.generateToken({grant_type:"client_credentials", client_id:"foo", client_secret:"bar"});
     assert(response1);
     expect(response1.code).to.equal(200);
     assert(response1.content);

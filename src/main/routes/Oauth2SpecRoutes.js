@@ -1,51 +1,42 @@
 const escape = require('escape-html');
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt');
-const SubjectDataService = require('../services/data/SubjectDataService.js');
+const Oauth2SpecService = require('../services/logic/Oauth2SpecService.js');
 
-function Oauth2SpecRoutes(subjectDataService, configuration, expressInstance) {
+function Oauth2SpecRoutes(oauth2SpecService, expressInstance) {
 
-  this.token = async (req, res) => {
+  this.oauth2SpecService = oauth2SpecService;
+  this.expressInstance = expressInstance;
 
-    if (!req.body.grant_type) {
-      let response = {
+  this.configure = () => {
+    //TODO: detect if body-parser urlencoded/json are configured
+    return new Promise((resolve, reject) => {
+      this.expressInstance.post("/oauth2/token", tokenRoute);
+      resolve()
+    })
+  }
+
+  tokenRoute = async (req, res) => {
+
+    if (!req.is('application/x-www-form-urlencoded')) {
+      res.status(400);
+      return res.json({
         code: 400,
-        message: "grant_type is required"
-      };
-      return res.json(response);
+        message: "unsuported content type"
+      });
     }
 
-    var subject_id, subject_credential
-    if (req.body.grant_type == "client_credentials") {
-      if (!req.body.client_id || !req.body.client_secret) {
-        let response = {
-          code: 400,
-          message: "client_id and client_secret is required"
-        };
-        return res.json(response);
-      }
-      subject_id = escape(req.body.client_id)
-      subject_credential = escape(req.body.client_secret)
-    }
-
-    var subject = await this.subjectDataService.findSubjectByIdentifier(subject_id);
-    var isItsCredential = await bcrypt.compare(safeReceivedPassword, subject[0].credential)
-    if (isItsCredential===true) {
-      let response = {
-        code: 200,
-        message: "success",
-        content: {
-          access_token: generateJwtToken(payload, process.env.TOKEN_SECRET, "3600s"),
-          role: user[0].role
-        }
-      };
-      return res.json(response);
-    } else {
-      let response = {
-        code: 401,
-        message: "incorrect credentials"
-      };
-      return res.json(response);
+    try {
+      var tokenResponse = await this.oauth2SpecService.generateToken(req.body);
+      res.status(tokenResponse.code);
+      return res.json(tokenResponse);
+    } catch (e) {
+      console.log(e);
+      res.status(500);
+      return res.json({
+        code: 500,
+        message: "internal error"
+      });
     }
   }
 }

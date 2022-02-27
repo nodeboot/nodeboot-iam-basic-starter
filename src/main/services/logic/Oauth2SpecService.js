@@ -106,13 +106,9 @@ function Oauth2SpecService(subjectDataService, configuration) {
   }
 
   generateJwtToken = function(payload, secret, tokenLife) {
-    if (tokenLife) {
-      return jwt.sign(payload, secret, {
-        expiresIn: tokenLife
-      });
-    } else {
-      return jwt.sign(subject, secret)
-    }
+    return jwt.sign(payload, secret, {
+      expiresIn: tokenLife
+    });
   }
 }
 
