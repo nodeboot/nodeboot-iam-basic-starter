@@ -6,7 +6,7 @@
   "scripts": {
     "test": "nyc --reporter=html --reporter=json-summary mocha  'src/test/**/*.test.js' --exit --require mocha-suppress-logs",
     "badges": "badges4cov --source=nyc_json --nyc_json_file_location=./coverage/coverage-summary.json --output_folder=./coverage",
-    "testv": "nyc --reporter=html --reporter=json-summary mocha 'src/test/**/*.test.js' --exit "
+    "testv": "nyc --reporter=html --reporter=json-summary mocha 'src/test/**/DatabaseHelperDataService.test.js' --exit "
   },
   "repository": {
     "type": "git",
