@@ -4,7 +4,7 @@ const SubjectDataService = require('./services/data/SubjectDataService.js');
 const IamDataService = require('./services/data/IamDataService.js');
 const SecurityMiddleware = require('./middleware/SecurityMiddleware.js');
 
-function IamSimpleStarter(configuration, subjectDataService, iamDataService, databaseHelperDataService) {
+function IamOauth2ElementaryStarter(configuration, subjectDataService, iamDataService, databaseHelperDataService) {
 
   this.configuration = configuration;
   this.subjectDataService = subjectDataService;
@@ -36,4 +36,4 @@ function IamSimpleStarter(configuration, subjectDataService, iamDataService, dat
   }
 }
 
-module.exports = IamSimpleStarter;
+module.exports = IamOauth2ElementaryStarter;

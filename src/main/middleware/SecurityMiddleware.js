@@ -14,6 +14,7 @@ function SecurityMiddleware(permissionRawString, configuration, subjectDataServi
   this.ensureAuthorization = async (req, res, next) => {
 
     if(!ObjectHelper.hasProperty(this.configuration, "nodeboot.iam_simple.jwtSecret")){
+      res.status(500);
       return res.json({
         code: 500,
         message: "Internal error"
@@ -22,6 +23,7 @@ function SecurityMiddleware(permissionRawString, configuration, subjectDataServi
 
     const authHeader = req.headers['authorization']
     if (authHeader == null){
+      res.status(401);
       return res.json({
         code: 401,
         message: "Missing token"
@@ -31,13 +33,15 @@ function SecurityMiddleware(permissionRawString, configuration, subjectDataServi
     const tokenInfo = authHeader.split(/\s{1}/)
 
     if (tokenInfo.length!=2){
+      res.status(401);
       return res.json({
         code: 401,
-        message: "Token should be Bearer"
+        message: "Token should be Bearer. Spec https://datatracker.ietf.org/doc/html/rfc6750#section-2.1"
       });
     }
 
     if (tokenInfo[0]!="Bearer"){
+      res.status(401);
       return res.json({
         code: 401,
         message: "Token should be Bearer"
@@ -45,6 +49,7 @@ function SecurityMiddleware(permissionRawString, configuration, subjectDataServi
     }
 
     if (tokenInfo[1].length<5){
+      res.status(401);
       return res.json({
         code: 401,
         message: "Token is wrong"
@@ -56,6 +61,7 @@ function SecurityMiddleware(permissionRawString, configuration, subjectDataServi
       payload = await jwt.verify(token, this.configuration.nodeboot.iam_simple.jwtSecret);
     } catch (e) {
       console.log(e);
+      res.status(401);
       return res.json({
         code: 401,
         message: "Invalid token"
@@ -68,6 +74,7 @@ function SecurityMiddleware(permissionRawString, configuration, subjectDataServi
       subject = await this.subjectDataService.findSubjectByIdentifier(payload.subject_id);
     }catch(e){
       console.log(e);
+      res.status(403);
       return res.json({
         code: 403,
         message: "You are not allowed"
@@ -75,6 +82,7 @@ function SecurityMiddleware(permissionRawString, configuration, subjectDataServi
     }
 
     if(typeof subject ==='undefined'){
+      res.status(403);
       return res.json({
         code: 403,
         message: "You are not allowed"
@@ -83,7 +91,9 @@ function SecurityMiddleware(permissionRawString, configuration, subjectDataServi
 
     var permissionScope = permissionRawString.split(":");
     var validator = await this.iamDataService.hasPermissions(subject.role, permissionScope[0].trim(), permissionScope[1].trim());
+
     if(validator.has_permission === "false"){
+      res.status(403);
       return res.json({
         code: 403,
         message: "You are not allowed"

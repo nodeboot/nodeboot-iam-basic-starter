@@ -5,9 +5,9 @@ var sinon = require('sinon');
 const request = require('supertest');
 const TestHelper = require('./test/TestHelper.js')
 
-const IamSimpleStarter = require("../main/IamSimpleStarter.js");
+const IamOauth2ElementaryStarter = require("../main/IamOauth2ElementaryStarter.js");
 
-describe('IamSimpleStarter: autoConfigure', function() {
+describe('IamOauth2ElementaryStarter: autoConfigure', function() {
   it('should return false if a database init returns undefined or false', async function() {
     function DatabaseHelperDataService1() {
       this.init = function() {
@@ -33,16 +33,16 @@ describe('IamSimpleStarter: autoConfigure', function() {
       }
     }
 
-    var iamSimpleStarter = new IamSimpleStarter({}, null, null, new DatabaseHelperDataService1());
-    var flag = await iamSimpleStarter.autoConfigure()
+    var iamOauth2ElementaryStarter = new IamOauth2ElementaryStarter({}, null, null, new DatabaseHelperDataService1());
+    var flag = await iamOauth2ElementaryStarter.autoConfigure()
     expect(flag).to.equal(false);
 
-    iamSimpleStarter = new IamSimpleStarter({}, null, null, new DatabaseHelperDataService2());
-    flag = await iamSimpleStarter.autoConfigure()
+    iamOauth2ElementaryStarter = new IamOauth2ElementaryStarter({}, null, null, new DatabaseHelperDataService2());
+    flag = await iamOauth2ElementaryStarter.autoConfigure()
     expect(flag).to.equal(false);
 
-    iamSimpleStarter = new IamSimpleStarter({}, null, null, new DatabaseHelperDataService3());
-    flag = await iamSimpleStarter.autoConfigure()
+    iamOauth2ElementaryStarter = new IamOauth2ElementaryStarter({}, null, null, new DatabaseHelperDataService3());
+    flag = await iamOauth2ElementaryStarter.autoConfigure()
     expect(flag).to.equal(false);
   });
   it('should return true if tables exist or were created', async function() {
@@ -54,14 +54,14 @@ describe('IamSimpleStarter: autoConfigure', function() {
       }
     }
 
-    var iamSimpleStarter = new IamSimpleStarter({}, null, null, new DatabaseHelperDataService());
-    var flag = await iamSimpleStarter.autoConfigure()
+    var iamOauth2ElementaryStarter = new IamOauth2ElementaryStarter({}, null, null, new DatabaseHelperDataService());
+    var flag = await iamOauth2ElementaryStarter.autoConfigure()
     expect(flag).to.equal(true);
   });
 });
 
 
-describe('IamSimpleStarter: getSecurityMiddleware', function() {
+describe('IamOauth2ElementaryStarter: getSecurityMiddleware', function() {
   it('should return a not null middleware', async function() {
     function DatabaseHelperDataService() {
       this.init = function() {
@@ -87,8 +87,8 @@ describe('IamSimpleStarter: getSecurityMiddleware', function() {
       }
     }
 
-    var iamSimpleStarter = new IamSimpleStarter({}, new SubjectDataService(), new IamDataService(), new DatabaseHelperDataService());
-    var middleware = await iamSimpleStarter.getSecurityMiddleware()
+    var iamOauth2ElementaryStarter = new IamOauth2ElementaryStarter({}, new SubjectDataService(), new IamDataService(), new DatabaseHelperDataService());
+    var middleware = await iamOauth2ElementaryStarter.getSecurityMiddleware()
     assert(middleware);
   });
 });
