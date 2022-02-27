@@ -3,40 +3,32 @@ const DatabaseHelperDataService = require('./services/data/DatabaseHelperDataSer
 const SubjectDataService = require('./services/data/SubjectDataService.js');
 const IamDataService = require('./services/data/IamDataService.js');
 const SecurityMiddleware = require('./middleware/SecurityMiddleware.js');
-const util = require("util")
 
-function IamSimpleStarter() {
+function IamSimpleStarter(configuration, subjectDataService, iamDataService, databaseHelperDataService) {
 
-  this.subjectDataService;
-  this.iamDataService;
+  this.configuration = configuration;
+  this.subjectDataService = subjectDataService;
+  this.iamDataService = iamDataService;
+  this.databaseHelperDataService = databaseHelperDataService;
   this.securityMiddleware;
-  this.configuration;
 
-  this.autoConfigure = async (dbSession, configuration) => {
+  this.autoConfigure = async () => {
     console.log("Starting iam configurations ...");
-    if (typeof dbSession === 'undefined' || dbSession == null) {
-      return;
-    }
 
-    var databaseHelperDataService = new DatabaseHelperDataService();
     var tablesCreation;
     try {
-      tablesCreation = await databaseHelperDataService.init(dbSession);
+      tablesCreation = await this.databaseHelperDataService.init();
     } catch (e) {
       console.log(e);
-    }
-
-    if(typeof tablesCreation=== 'undefined' || tablesCreation==="false"){
-      console.log("Required tables don't exist. Iam simple starter will not be loaded");
+      console.log("Required tables don't exist due to a database error. Iam simple starter will not be loaded");
       return false;
     }
 
-    this.subjectDataService = new SubjectDataService();
-    this.iamDataService = new IamDataService();
-    this.securityMiddleware = new SecurityMiddleware();
-    this.configuration = configuration;
+    if(typeof tablesCreation=== 'undefined' || tablesCreation===false){
+      console.log("Required tables don't exist. Iam simple starter will not be loaded");
+      return false;
+    }
     return true;
-
   }
 
   this.getSecurityMiddleware = async (permissionRawString) => {

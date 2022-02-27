@@ -229,6 +229,7 @@ describe('SecurityMiddleware: ensureAuthorization', function() {
     var subjectDataService = new subjectDataService();
     var iamDataService = new iamDataService();
     var securityMiddleware = new SecurityMiddleware("foo:bar", configuration, subjectDataService, iamDataService);
+    //if this line is reached without error, we are good!!
     await securityMiddleware.ensureAuthorization(req, new res, function(){});
   });
 

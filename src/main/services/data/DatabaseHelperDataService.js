@@ -1,6 +1,6 @@
-function DatabaseHelperDataService() {
+function DatabaseHelperDataService(dbSession) {
 
-  this.init = (dbSession) => {
+  this.init = () => {
     return new Promise(async (resolve, reject) => {
       if(typeof dbSession === 'undefined'){
         reject(new Error("is not possible stabilish a database connection"))
