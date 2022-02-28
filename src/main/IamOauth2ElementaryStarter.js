@@ -13,25 +13,25 @@ function IamOauth2ElementaryStarter(configuration, subjectDataService, iamDataSe
   this.securityMiddleware;
 
   this.autoConfigure = async () => {
-    console.log("Starting iam configurations ...");
+    console.log("Starting Iam oauth2 elementary starter configurations ...");
 
     var tablesCreation;
     try {
       tablesCreation = await this.databaseHelperDataService.init();
     } catch (e) {
       console.log(e);
-      console.log("Required tables don't exist due to a database error. Iam simple starter will not be loaded");
+      console.log("Required tables don't exist due to a database error. Iam oauth2 elementary starter will not be loaded");
       return false;
     }
 
     if(typeof tablesCreation=== 'undefined' || tablesCreation===false){
-      console.log("Required tables don't exist. Iam simple starter will not be loaded");
+      console.log("Required tables don't exist. Iam oauth2 elementary starter will not be loaded");
       return false;
     }
     return true;
   }
 
-  this.getSecurityMiddleware = async (permissionRawString) => {
+  this.getSecurityMiddleware = (permissionRawString) => {
     return new SecurityMiddleware(permissionRawString, this.configuration, this.subjectDataService, this.iamDataService);
   }
 }

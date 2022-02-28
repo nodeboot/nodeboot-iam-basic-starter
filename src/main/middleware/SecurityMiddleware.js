@@ -14,6 +14,7 @@ function SecurityMiddleware(permissionRawString, configuration, subjectDataServi
   this.ensureAuthorization = async (req, res, next) => {
 
     if(!ObjectHelper.hasProperty(this.configuration, "nodeboot.iam_simple.jwtSecret")){
+      console.log("nodeboot.iam_simple.jwtSecret was not found");
       res.status(500);
       return res.json({
         code: 500,

@@ -20,26 +20,30 @@ function DatabaseHelperDataService(dbSession) {
         resolve(false);
       }else {
         console.log("iam tables don't exist. Creating...");
-        dbSession.createTable('iam_subject', async (table)=>{
-          table.increments('id').primary();
-          table.string('identifier', 25).unique().notNullable();
-          table.string('secret', 255).notNullable();
-          table.string('role', 50).notNullable();
-        }).then(async function(){
-          dbSession.createTable('iam_permission', async (table)=>{
+        try {
+          dbSession.schema.createTable('iam_subject', async (table)=>{
             table.increments('id').primary();
-            table.string('role', 25).notNullable();
-            table.string('resource', 50).notNullable();
-            table.string('permission', 150).notNullable();
+            table.string('identifier', 25).unique().notNullable();
+            table.string('secret', 255).notNullable();
+            table.string('role', 50).notNullable();
           }).then(async function(){
-            var iamPermissionTable = await dbSession.schema.hasTable('iam_permission');
-            var userTable = await dbSession.schema.hasTable('iam_subject');
-            if(iamPermissionTable === false || userTable === false){
-              reject(new Error("tables did not exist and and could not be created"));
-            }
-            resolve(true)
-          })
-        });
+            dbSession.schema.createTable('iam_permission', async (table)=>{
+              table.increments('id').primary();
+              table.string('role', 25).notNullable();
+              table.string('resource', 50).notNullable();
+              table.string('permission', 150).notNullable();
+            }).then(async function(){
+              var iamPermissionTable = await dbSession.schema.hasTable('iam_permission');
+              var userTable = await dbSession.schema.hasTable('iam_subject');
+              if(iamPermissionTable === false || userTable === false){
+                reject(new Error("tables did not exist and and could not be created"));
+              }
+              resolve(true)
+            })
+          });
+        } catch (e) {
+          reject(new Error("is not possible create tables in the database"))
+        }
       }
     });
   }
