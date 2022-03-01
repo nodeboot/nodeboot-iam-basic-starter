@@ -16,7 +16,7 @@ describe('Oauth2SpecService: generateToken', function() {
   it('should return 400 on missing or unknown grant_type', async function() {
     var configuration = {
       nodeboot:{
-        iam_simple:{
+        iam_oauth2_elementary_starter:{
           jwtSecret:"secret"
         }
       }
@@ -32,7 +32,7 @@ describe('Oauth2SpecService: generateToken', function() {
   it('should return 400 on missing client_id/client_secret for grant_type:client_credentials', async function() {
     var configuration = {
       nodeboot:{
-        iam_simple:{
+        iam_oauth2_elementary_starter:{
           jwtSecret:"secret"
         }
       }
@@ -48,7 +48,7 @@ describe('Oauth2SpecService: generateToken', function() {
   it('should return 400 on missing username/password for grant_type:password', async function() {
     var configuration = {
       nodeboot:{
-        iam_simple:{
+        iam_oauth2_elementary_starter:{
           jwtSecret:"secret"
         }
       }
@@ -64,7 +64,7 @@ describe('Oauth2SpecService: generateToken', function() {
   it('should return 500 on db error while subject is querying', async function() {
     var configuration = {
       nodeboot:{
-        iam_simple:{
+        iam_oauth2_elementary_starter:{
           jwtSecret:"secret"
         }
       }
@@ -86,7 +86,7 @@ describe('Oauth2SpecService: generateToken', function() {
   it('should return 401 if user was not found', async function() {
     var configuration = {
       nodeboot:{
-        iam_simple:{
+        iam_oauth2_elementary_starter:{
           jwtSecret:"secret"
         }
       }
@@ -108,7 +108,7 @@ describe('Oauth2SpecService: generateToken', function() {
   it('should return 401 on bad password', async function() {
     var configuration = {
       nodeboot:{
-        iam_simple:{
+        iam_oauth2_elementary_starter:{
           jwtSecret:"secret"
         }
       }
@@ -133,7 +133,7 @@ describe('Oauth2SpecService: generateToken', function() {
   it('should return 200 and valid access_token, on valid user subject, secret, jwt_secret', async function() {
     var configuration = {
       nodeboot:{
-        iam_simple:{
+        iam_oauth2_elementary_starter:{
           jwtSecret:"secret",
           jwtExpiration:"1800s"
         }
@@ -163,7 +163,7 @@ describe('Oauth2SpecService: generateToken', function() {
   it('should return 200 and valid access_token, on valid client subject, secret, jwt_secret', async function() {
     var configuration = {
       nodeboot:{
-        iam_simple:{
+        iam_oauth2_elementary_starter:{
           jwtSecret:"secret",
           jwtExpiration:"1800s"
         }
@@ -193,7 +193,7 @@ describe('Oauth2SpecService: generateToken', function() {
   it('should return 200 with default expiration when expiration is not configured', async function() {
     var configuration = {
       nodeboot:{
-        iam_simple:{
+        iam_oauth2_elementary_starter:{
           jwtSecret:"secret"
         }
       }

@@ -79,6 +79,55 @@ describe('DatabaseHelperDataService: init', function() {
     expect(result).to.equal(false);
   });
 
+  it('should throw an error if database throw an error while the tables were being created', async function() {
+
+    // function table() {}
+    //
+    // function increments() {
+    //   return new function() {
+    //     this.primary = function() {}
+    //   };
+    // }
+    //
+    // function string() {
+    //   return new function() {
+    //     this.unique = function() {
+    //       return new function() {
+    //         this.notNullable = function() {}
+    //       }
+    //     }
+    //     this.notNullable = function() {}
+    //   };
+    // }
+    //
+    // table.increments = increments;
+    // table.string = string;
+
+    var schema = function() {
+      this.hasTable = function(tableName) {
+        return new Promise((resolve, reject) => {
+          resolve(false)
+        })
+      }
+      this.createTable = async function(tableName, callback) {
+        throw new Error("Im a jerk!!!");
+      }
+    }
+
+    var dbSession = function() {
+      this.schema = new schema();
+    }
+
+    var databaseHelperDataService = new DatabaseHelperDataService(new dbSession());
+
+    try {
+      await databaseHelperDataService.init();
+    } catch (e) {
+      ex = e;
+    }
+    assert(ex, "The error should have been thrown");
+  });
+
   it('should throw an error if tables dont exist but they were not created', async function() {
 
     function table() {}
@@ -109,13 +158,13 @@ describe('DatabaseHelperDataService: init', function() {
           resolve(false)
         })
       }
+      this.createTable = async function(tableName, callback) {
+        callback(table)
+      }
     }
 
     var dbSession = function() {
       this.schema = new schema();
-      this.createTable = async function(tableName, callback) {
-        callback(table)
-      }
     }
 
     var databaseHelperDataService = new DatabaseHelperDataService(new dbSession());
@@ -165,13 +214,13 @@ describe('DatabaseHelperDataService: init', function() {
           hasTableCallsCount++;
         })
       }
+      this.createTable = async function(tableName, callback) {
+        callback(table)
+      }
     }
 
     var dbSession = function() {
       this.schema = new schema();
-      this.createTable = async function(tableName, callback) {
-        callback(table)
-      }
     }
 
     var databaseHelperDataService = new DatabaseHelperDataService(new dbSession());

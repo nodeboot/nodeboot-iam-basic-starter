@@ -13,8 +13,8 @@ function SecurityMiddleware(permissionRawString, configuration, subjectDataServi
 
   this.ensureAuthorization = async (req, res, next) => {
 
-    if(!ObjectHelper.hasProperty(this.configuration, "nodeboot.iam_simple.jwtSecret")){
-      console.log("nodeboot.iam_simple.jwtSecret was not found");
+    if(!ObjectHelper.hasProperty(this.configuration, "nodeboot.iam_oauth2_elementary_starter.jwtSecret")){
+      console.log("nodeboot.iam_oauth2_elementary_starter.jwtSecret was not found");
       res.status(500);
       return res.json({
         code: 500,
@@ -59,7 +59,7 @@ function SecurityMiddleware(permissionRawString, configuration, subjectDataServi
     var token = tokenInfo[1]
     var payload;
     try {
-      payload = await jwt.verify(token, this.configuration.nodeboot.iam_simple.jwtSecret);
+      payload = await jwt.verify(token, this.configuration.nodeboot.iam_oauth2_elementary_starter.jwtSecret);
     } catch (e) {
       console.log(e);
       res.status(401);
@@ -91,7 +91,7 @@ function SecurityMiddleware(permissionRawString, configuration, subjectDataServi
     }
 
     var permissionScope = permissionRawString.split(":");
-    var validator = await this.iamDataService.hasPermissions(subject.role, permissionScope[0].trim(), permissionScope[1].trim());
+    var validator = await this.iamDataService.hasPermissions(subject[0].role, permissionScope[0].trim(), permissionScope[1].trim());
 
     if(validator.has_permission === "false"){
       res.status(403);

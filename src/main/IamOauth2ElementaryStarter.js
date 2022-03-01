@@ -3,13 +3,16 @@ const DatabaseHelperDataService = require('./services/data/DatabaseHelperDataSer
 const SubjectDataService = require('./services/data/SubjectDataService.js');
 const IamDataService = require('./services/data/IamDataService.js');
 const SecurityMiddleware = require('./middleware/SecurityMiddleware.js');
+const Oauth2SpecService = require('./services/logic/Oauth2SpecService.js');
+const Oauth2SpecRoutes = require('./routes/Oauth2SpecRoutes.js');
 
-function IamOauth2ElementaryStarter(configuration, subjectDataService, iamDataService, databaseHelperDataService) {
+function IamOauth2ElementaryStarter(configuration, subjectDataService, iamDataService, databaseHelperDataService, expressInstance) {
 
   this.configuration = configuration;
   this.subjectDataService = subjectDataService;
   this.iamDataService = iamDataService;
   this.databaseHelperDataService = databaseHelperDataService;
+  this.expressInstance = expressInstance;
   this.securityMiddleware;
 
   this.autoConfigure = async () => {
@@ -28,6 +31,11 @@ function IamOauth2ElementaryStarter(configuration, subjectDataService, iamDataSe
       console.log("Required tables don't exist. Iam oauth2 elementary starter will not be loaded");
       return false;
     }
+
+    var oauth2SpecService = new Oauth2SpecService(this.subjectDataService, this.configuration);
+    var oauth2SpecRoutes = new Oauth2SpecRoutes(oauth2SpecService, this.expressInstance);
+    await oauth2SpecRoutes.configure();
+
     return true;
   }
 

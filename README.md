@@ -1,37 +1,71 @@
-# nodeboot-database-starter
+# nodeboot-iam-oauth2-elementary-starter
 
 ![](./coverage/lines.svg) ![](./coverage/statements.svg) ![](./coverage/branches.svg) ![](./coverage/functions.svg)
 
-Library used in [nodeboot-rest-starter](https://github.com/nodeboot/nodeboot-rest-starter) which allows us to inject a ready to use **knex** instance
+Library used in [nodeboot-rest-starter](https://github.com/nodeboot/nodeboot-rest-starter) which allows us to protect your routes with oauth2 access_token and publish the /oauth/token endpoint to exchange user/password or client_id/client_secret for access_token
 
 ## usage
 
 [nodeboot-rest-starter](https://github.com/nodeboot/nodeboot-rest-starter) use it in this way:
 
-```
-if (require.resolve(rootNodeModulesLocation+'/nodeboot-database-starter')) {
-   console.log("nodeboot-database-starter was detected. Configuring...");
-   const DatabaseStarter = require(rootNodeModulesLocation+"/nodeboot-database-starter");
-   var databaseStarter = new DatabaseStarter();
-   var dbSession = await databaseStarter.autoConfigure(rootNodeModulesLocation);
+First load the starter and create the tables
 
-   if (typeof dbSession !== 'undefined') {
-     console.log("dbSession is ready");
-     this.instancedDependecies["dbSession"] = dbSession || {};
-   }
+```
+await fsPromises.access(path.join(rootNodeModulesLocation, "nodeboot-iam-oauth2-elementary-starter"));
+console.log("nodeboot-iam-oauth2-elementary-starter was detected. Configuring...");
+
+if (typeof this.instancedDependecies["dbSession"] === 'undefined') {
+  console.log("nodeboot-iam-oauth2-elementary-starter needs a database connection. Add this starter to do that: nodeboot-database-starter");
+  return;
+}
+
+const IamOauth2ElementaryStarter = require(rootNodeModulesLocation + "/nodeboot-iam-oauth2-elementary-starter").IamOauth2ElementaryStarter;
+const SubjectDataService = require(rootNodeModulesLocation + "/nodeboot-iam-oauth2-elementary-starter").SubjectDataService;
+const IamDataService = require(rootNodeModulesLocation + "/nodeboot-iam-oauth2-elementary-starter").IamDataService;
+const DatabaseHelperDataService = require(rootNodeModulesLocation + "/nodeboot-iam-oauth2-elementary-starter").DatabaseHelperDataService;
+
+var subjectDataService = new SubjectDataService(this.instancedDependecies["dbSession"]);
+var iamDataService = new IamDataService(this.instancedDependecies["dbSession"]);
+var databaseHelperDataService = new DatabaseHelperDataService(this.instancedDependecies["dbSession"]);
+
+var iamOauth2ElementaryStarter = new IamOauth2ElementaryStarter(this.instancedDependecies["configuration"],
+  subjectDataService, iamDataService, databaseHelperDataService, this.express);
+await iamOauth2ElementaryStarter.autoConfigure();
+this.instancedStarters["nodeboot-iam-oauth2-elementary-starter"] = iamOauth2ElementaryStarter;
+```
+
+Then if route has a `@Protected(permission = "employee:delete")` annotation:
+
+```
+var iamOauth2ElementaryStarter = this.instancedStarters["nodeboot-iam-oauth2-elementary-starter"];
+if(typeof iamOauth2ElementaryStarter!== 'undefined'){
+  console.log("nodeboot-iam-oauth2-elementary-starter is ready to be use as middleware");
+  var protectedAnnotation = MetaHelper.findAnnotationOfFunction(dependency, functionName, "Protected");
+  if(typeof protectedAnnotation !== 'undefined'){
+    var permission = protectedAnnotation.arguments.permission
+    if(typeof permission !== 'undefined'){
+      var securityMiddleware = iamOauth2ElementaryStarter.getSecurityMiddleware(permission)
+      this.express[method](routeString, securityMiddleware.ensureAuthorization, this.instancedDependecies[instanceId][functionName]);
+      console.log(`registered route: ${instanceId}.${functionName} endpoint:${routeString} method:${method} protected:${permission}`);
+    }
+  }
 }
 ```
 
-Basically if the developer add **nodeboot-database-starter** to its package.json, **nodeboot-rest-starter** will detect it and starts the auto configuration
+Basically if the developer add **nodeboot-iam-oauth2-elementary-starter** to its package.json, **nodeboot-rest-starter** will detect it and starts the auto configuration
 
 ## Road map
 
 - [ ] add more databases like postgress, sqlserver, oracle
+- [ ] add simple file instead database for prototyping
 - [ ] publish to npm repository: https://www.npmjs.com/package/repository
+- [ ] research if using regex we can get the defined route from the real url
+  - https://stackoverflow.com/questions/19460481/get-route-definition-in-middleware
+  - https://stackoverflow.com/a/28086959/3957754
 
 ## Inspiration
 
-- [spring-boot-starter-data-jpa](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/)
+- [spring-boot-oauth2](https://spring.io/guides/tutorials/spring-boot-oauth2/)
 
 ## Contributors
 
@@ -45,89 +79,3 @@ Basically if the developer add **nodeboot-database-starter** to its package.json
     </td>    
   </tbody>
 </table>
-
-
-var express = require('express');
-var app = express();
-
-app.use(function(req, res, next){
-  console.log("app.use");
-  app._router.stack.forEach(function(r){
-    if (r.route && r.route.path){
-      console.log(r.route.path)
-    }
-  })
-  next();
-})
-
-function middleware2(permiso){
-
-  return function middleware(req, res, next){
-    console.log("middleware");
-    console.log(req.route);
-    next();
-  }
-
-}
-
-function middleware(req, res, next){
-  console.log("middleware");
-  console.log(req.route);
-  next();
-}
-
-app.get('/route1', middleware2("asdasd:asdasd"), function(req, res) {
-  res.type('text/plain');
-  res.send('Hell , its about time!!');
-});
-
-app.get('/user/:id', middleware, function(req, res) {
-  res.type('text/plain');
-  res.send('Hell , its about time!!');
-});
-
-
-app.listen(process.env.PORT || 8080);
-
-
-node_modules/express/lib/router/layer.js
-
-
-
-var express = require('express');
-var app = express();
-
-app.use(function(req, res, next){
-  console.log("app.use");
-  console.log(app._router);
-  app._router.stack.forEach(function(r){
-    if (r.route && r.route.path){
-      console.log(r.route)
-    }
-  })
-  next();
-})
-
-function middlewareClass(permiso){
-  return function middleware(req, res, next){
-    console.log("middleware");
-    console.log(req.route);
-    next();
-  }
-}
-
-app.get('/route1', middlewareClass("route1:scope1"), function(req, res) {
-  res.type('text/plain');
-  res.send('Hell , its about time: route1');
-});
-
-app.get('/user/:id', middlewareClass("route2:scope2"), function(req, res) {
-  res.type('text/plain');
-  res.send('Hell , its about time: user');
-});
-
-
-app.listen(process.env.PORT || 8080);
-
-//https://stackoverflow.com/questions/19460481/get-route-definition-in-middleware
-//https://stackoverflow.com/a/28086959/3957754

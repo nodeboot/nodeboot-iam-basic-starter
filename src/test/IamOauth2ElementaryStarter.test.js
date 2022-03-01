@@ -53,8 +53,15 @@ describe('IamOauth2ElementaryStarter: autoConfigure', function() {
         })
       }
     }
+    function ExpressMock() {
+      this.post = function() {
+        return new Promise((resolve, reject) => {
+          resolve(true)
+        })
+      }
+    }
 
-    var iamOauth2ElementaryStarter = new IamOauth2ElementaryStarter({}, null, null, new DatabaseHelperDataService());
+    var iamOauth2ElementaryStarter = new IamOauth2ElementaryStarter({}, null, null, new DatabaseHelperDataService(), new ExpressMock());
     var flag = await iamOauth2ElementaryStarter.autoConfigure()
     expect(flag).to.equal(true);
   });

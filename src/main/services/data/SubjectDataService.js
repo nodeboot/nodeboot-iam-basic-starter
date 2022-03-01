@@ -7,7 +7,7 @@ function SubjectDataService(dbSession) {
       try {
         var user = await this.dbSession
           .select('*')
-          .from('subject')
+          .from('iam_subject')
           .where('identifier', identifier);
         resolve(user);
       } catch (err) {

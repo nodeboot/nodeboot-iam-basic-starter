@@ -10,8 +10,8 @@ function Oauth2SpecService(subjectDataService, configuration) {
 
   this.generateToken = async (generateTokenRequest) => {
 
-    if(!ObjectHelper.hasProperty(this.configuration, "nodeboot.iam_simple.jwtSecret")){
-      console.log("nodeboot.iam_simple.jwtSecret was not found");
+    if(!ObjectHelper.hasProperty(this.configuration, "nodeboot.iam_oauth2_elementary_starter.jwtSecret")){
+      console.log("nodeboot.iam_oauth2_elementary_starter.jwtSecret was not found");
       return {
         code: 500,
         message: "Internal error"
@@ -90,8 +90,8 @@ function Oauth2SpecService(subjectDataService, configuration) {
 
     //TODO: validate at least one role
 
-    var jwtExpiration = this.configuration.nodeboot.iam_simple.jwtExpiration || "3600s";
-    var access_token = generateJwtToken({subject_id:subject_id}, this.configuration.nodeboot.iam_simple.jwtSecret, jwtExpiration);
+    var jwtExpiration = this.configuration.nodeboot.iam_oauth2_elementary_starter.jwtExpiration || "3600s";
+    var access_token = generateJwtToken({subject_id:subject_id}, this.configuration.nodeboot.iam_oauth2_elementary_starter.jwtSecret, jwtExpiration);
     let response = {
       code: 200,
       message: "success",

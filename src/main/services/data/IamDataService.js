@@ -10,17 +10,18 @@ function IamDataService(dbSession) {
   then 'true'
   else 'false'
   end as has_permission
-  from iam
+  from iam_permission
   where resource  = :resource
   and permission  = :permission
   and role = :role
   `
 
   this.hasPermissions = (role, resource, permission) => {
+    var params;
     return new Promise(async (resolve, reject) => {
       try {
 
-        var params = {
+        params = {
           resource: resource,
           permission: permission,
           role: role
@@ -31,7 +32,7 @@ function IamDataService(dbSession) {
         resolve(countPermissions[0][0]);
       } catch (err) {
         console.log(err);
-        reject("Failed to find next image");
+        reject("Failed to query permissions with these parameters: "+JSON.stringify(params));
       }
     });
   }

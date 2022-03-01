@@ -9,7 +9,7 @@ const SecurityMiddleware = require("../../main/middleware/SecurityMiddleware.js"
 const TestHelper = require('../test/TestHelper.js')
 
 describe('SecurityMiddleware: ensureAuthorization', function() {
-  it('should return 500 on missing nodeboot.iam_simple.jwtSecret', async function() {
+  it('should return 500 on missing nodeboot.iam_oauth2_elementary_starter.jwtSecret', async function() {
     var configuration = {}
     var securityMiddleware = new SecurityMiddleware("bar:baz", configuration, null, null);
     var ligthExpress = await TestHelper.createLigthExpress();
@@ -22,7 +22,7 @@ describe('SecurityMiddleware: ensureAuthorization', function() {
   it('should return 401 [Missing token] on missing bearer token', async function() {
     var configuration = {
       nodeboot: {
-        iam_simple: {
+        iam_oauth2_elementary_starter: {
           jwtSecret: "theprecious"
         }
       }
@@ -38,7 +38,7 @@ describe('SecurityMiddleware: ensureAuthorization', function() {
   it('should return 401 [Token should be Bearer] on wrong bearer token syntax', async function() {
     var configuration = {
       nodeboot: {
-        iam_simple: {
+        iam_oauth2_elementary_starter: {
           jwtSecret: "theprecious"
         }
       }
@@ -62,7 +62,7 @@ describe('SecurityMiddleware: ensureAuthorization', function() {
   it('should return 401 [Invalid token] on malformed bearer token', async function() {
     var configuration = {
       nodeboot: {
-        iam_simple: {
+        iam_oauth2_elementary_starter: {
           jwtSecret: "theprecious"
         }
       }
@@ -105,7 +105,7 @@ describe('SecurityMiddleware: ensureAuthorization', function() {
     }
     var configuration = {
       nodeboot: {
-        iam_simple: {
+        iam_oauth2_elementary_starter: {
           jwtSecret: "secret"
         }
       }
@@ -145,7 +145,7 @@ describe('SecurityMiddleware: ensureAuthorization', function() {
 
     var configuration = {
       nodeboot: {
-        iam_simple: {
+        iam_oauth2_elementary_starter: {
           jwtSecret: "secret"
         }
       }
@@ -164,9 +164,9 @@ describe('SecurityMiddleware: ensureAuthorization', function() {
     function subjectDataService() {
       this.findSubjectByIdentifier = function(identifier) {
         return new Promise((resolve, reject) => {
-          resolve({
+          resolve([{
             role: "foo"
-          })
+          }])
         })
       }
     }
@@ -193,7 +193,7 @@ describe('SecurityMiddleware: ensureAuthorization', function() {
 
     var configuration = {
       nodeboot: {
-        iam_simple: {
+        iam_oauth2_elementary_starter: {
           jwtSecret: "secret"
         }
       }
@@ -212,9 +212,9 @@ describe('SecurityMiddleware: ensureAuthorization', function() {
     function subjectDataService() {
       this.findSubjectByIdentifier = function(identifier) {
         return new Promise((resolve, reject) => {
-          resolve({
+          resolve([{
             role: "foo"
-          })
+          }])
         })
       }
     }
