@@ -18,6 +18,7 @@ function IamOauth2ElementaryStarter(configuration, subjectDataService, iamDataSe
   this.autoConfigure = async () => {
     console.log("Starting Iam oauth2 elementary starter configurations ...");
 
+    //TOOD: validate if session is well configured
     var tablesCreation;
     try {
       tablesCreation = await this.databaseHelperDataService.init();

@@ -13,43 +13,43 @@ function Oauth2SpecService(subjectDataService, configuration) {
     if(!ObjectHelper.hasProperty(this.configuration, "nodeboot.iam_oauth2_elementary_starter.jwtSecret")){
       console.log("nodeboot.iam_oauth2_elementary_starter.jwtSecret was not found");
       return {
-        code: 500,
+        code: 401501,
         message: "Internal error"
       };
     }
 
     if (!generateTokenRequest.grant_type) {
       let response = {
-        code: 400,
+        code: 401400,
         message: "grant_type is required"
       };
       return response;
     }
 
-    var subject_id, subject_secret
+    var subject_identifier, subject_secret
     if (generateTokenRequest.grant_type == "client_credentials") {
       if (typeof generateTokenRequest.client_id === 'undefined' || typeof generateTokenRequest.client_secret === 'undefined') {
         let response = {
-          code: 400,
+          code: 401402,
           message: "client_id and client_secret is required"
         };
         return response;
       }
-      subject_id = escape(generateTokenRequest.client_id)
+      subject_identifier = escape(generateTokenRequest.client_id)
       subject_secret = escape(generateTokenRequest.client_secret)
     } else if (generateTokenRequest.grant_type == "password") {
       if (!generateTokenRequest.username || !generateTokenRequest.password) {
         let response = {
-          code: 400,
+          code: 401403,
           message: "username and password is required"
         };
         return response;
       }
-      subject_id = escape(generateTokenRequest.username)
+      subject_identifier = escape(generateTokenRequest.username)
       subject_secret = escape(generateTokenRequest.password)
     } else{
       let response = {
-        code: 400,
+        code: 401401,
         message: "unkown grant"
       };
       return response;
@@ -57,21 +57,21 @@ function Oauth2SpecService(subjectDataService, configuration) {
 
     var subject;
     try {
-      subject = await this.subjectDataService.findSubjectByIdentifier(subject_id);
+      subject = await this.subjectDataService.findSubjectByIdentifier(subject_identifier);
     } catch (e) {
       console.log("database error while subject was be querying");
       console.log(e);
       let response = {
-        code: 500,
+        code: 401502,
         message: "internal error"
       };
       return response;
     }
 
     if(subject.length == 0){
-      console.log("User was not found: "+subject_id);
+      console.log("User was not found: "+subject_identifier);
       let response = {
-        code: 401,
+        code: 401000,
         message: "Unauthorized"
       };
       return response;
@@ -80,9 +80,9 @@ function Oauth2SpecService(subjectDataService, configuration) {
     var isItsCredential = await bcrypt.compare(subject_secret, subject[0].secret)
     if (isItsCredential===false) {
       //TODO: add fba
-      console.log("Incorrect password: "+subject_id);
+      console.log("Incorrect password: "+subject_identifier);
       let response = {
-        code: 401,
+        code: 401000,
         message: "unauthorized"
       };
       return response;
@@ -91,9 +91,9 @@ function Oauth2SpecService(subjectDataService, configuration) {
     //TODO: validate at least one role
 
     var jwtExpiration = this.configuration.nodeboot.iam_oauth2_elementary_starter.jwtExpiration || "3600s";
-    var access_token = generateJwtToken({subject_id:subject_id}, this.configuration.nodeboot.iam_oauth2_elementary_starter.jwtSecret, jwtExpiration);
+    var access_token = generateJwtToken({subject_identifier:subject_identifier}, this.configuration.nodeboot.iam_oauth2_elementary_starter.jwtSecret, jwtExpiration);
     let response = {
-      code: 200,
+      code: 200000,
       message: "success",
       content: {
         access_token: access_token,

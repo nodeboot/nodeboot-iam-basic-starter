@@ -17,7 +17,7 @@ function SecurityMiddleware(permissionRawString, configuration, subjectDataServi
       console.log("nodeboot.iam_oauth2_elementary_starter.jwtSecret was not found");
       res.status(500);
       return res.json({
-        code: 500,
+        code: 500002,
         message: "Internal error"
       });
     }
@@ -26,7 +26,7 @@ function SecurityMiddleware(permissionRawString, configuration, subjectDataServi
     if (authHeader == null){
       res.status(401);
       return res.json({
-        code: 401,
+        code: 401001,
         message: "Missing token"
       });
     }
@@ -36,7 +36,7 @@ function SecurityMiddleware(permissionRawString, configuration, subjectDataServi
     if (tokenInfo.length!=2){
       res.status(401);
       return res.json({
-        code: 401,
+        code: 401002,
         message: "Token should be Bearer. Spec https://datatracker.ietf.org/doc/html/rfc6750#section-2.1"
       });
     }
@@ -44,7 +44,7 @@ function SecurityMiddleware(permissionRawString, configuration, subjectDataServi
     if (tokenInfo[0]!="Bearer"){
       res.status(401);
       return res.json({
-        code: 401,
+        code: 401003,
         message: "Token should be Bearer"
       });
     }
@@ -52,7 +52,7 @@ function SecurityMiddleware(permissionRawString, configuration, subjectDataServi
     if (tokenInfo[1].length<5){
       res.status(401);
       return res.json({
-        code: 401,
+        code: 401004,
         message: "Token is wrong"
       });
     }
@@ -64,20 +64,20 @@ function SecurityMiddleware(permissionRawString, configuration, subjectDataServi
       console.log(e);
       res.status(401);
       return res.json({
-        code: 401,
+        code: 401005,
         message: "Invalid token"
       });
     }
 
-    //TODO: validate payload.subject_id
+    //TODO: validate payload.subject_identifier
     var subject;
     try{
-      subject = await this.subjectDataService.findSubjectByIdentifier(payload.subject_id);
+      subject = await this.subjectDataService.findSubjectByIdentifier(payload.subject_identifier);
     }catch(e){
       console.log(e);
       res.status(403);
       return res.json({
-        code: 403,
+        code: 403001,
         message: "You are not allowed"
       });
     }
@@ -85,7 +85,7 @@ function SecurityMiddleware(permissionRawString, configuration, subjectDataServi
     if(typeof subject ==='undefined'){
       res.status(403);
       return res.json({
-        code: 403,
+        code: 403002,
         message: "You are not allowed"
       });
     }
@@ -96,9 +96,13 @@ function SecurityMiddleware(permissionRawString, configuration, subjectDataServi
     if(validator.has_permission === "false"){
       res.status(403);
       return res.json({
-        code: 403,
+        code: 403003,
         message: "You are not allowed"
       });
+    }
+
+    req.app.locals.secure_context = {
+      subject_identifier: payload.subject_identifier
     }
     return next();
   }

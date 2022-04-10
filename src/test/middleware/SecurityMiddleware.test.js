@@ -78,12 +78,12 @@ describe('SecurityMiddleware: ensureAuthorization', function() {
   it('should return 403 when token is valid but there is a db error or unknown subject', async function() {
 
     var token1 = jwt.sign({
-      subject_id: "jane_doe"
+      subject_identifier: "jane_doe"
     }, "secret", {
       expiresIn: '3600s'
     });
     var token2 = jwt.sign({
-      subject_id: "kurt_weller"
+      subject_identifier: "kurt_weller"
     }, "secret", {
       expiresIn: '3600s'
     });
@@ -138,7 +138,7 @@ describe('SecurityMiddleware: ensureAuthorization', function() {
   it('should return 403 on valid token and valid subject but without permission', async function() {
 
     var token = jwt.sign({
-      subject_id: "jane_doe"
+      subject_identifier: "jane_doe"
     }, "secret", {
       expiresIn: '3600s'
     });
@@ -180,13 +180,13 @@ describe('SecurityMiddleware: ensureAuthorization', function() {
     })
     const response1 = await request(ligthExpress.app).get('/foo').set({ 'Authorization': "Bearer " + token});
     var responseTextAsObject = JSON.parse(response1.text);
-    expect(responseTextAsObject.code).to.equal(403);
+    expect(responseTextAsObject.code).to.equal(403003);
 
   });
   it('should get the protected resource on valid token and valid subject with permission', async function() {
 
     var token = jwt.sign({
-      subject_id: "jane_doe"
+      subject_identifier: "jane_doe"
     }, "secret", {
       expiresIn: '3600s'
     });

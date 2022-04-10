@@ -22,11 +22,11 @@ function Oauth2SpecRoutes(oauth2SpecService, expressInstance) {
     if (!req.is('application/x-www-form-urlencoded')) {
       res.status(400);
       return res.json({
-        code: 400,
+        code: 400001,
         message: "unsuported content type"
       });
     }
-    
+
     try {
       var tokenResponse = await this.oauth2SpecService.generateToken(req.body);
       res.status(tokenResponse.code);
@@ -35,7 +35,7 @@ function Oauth2SpecRoutes(oauth2SpecService, expressInstance) {
       console.log(e);
       res.status(500);
       return res.json({
-        code: 500,
+        code: 500000,
         message: "internal error"
       });
     }
