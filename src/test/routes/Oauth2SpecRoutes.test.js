@@ -40,13 +40,13 @@ describe('Oauth2SpecRoutes : configure', function() {
     ligthExpress.server.close();
   });
 
-  it('should return valid token if request is fine ...', async function() {
+  it.only('should return valid token if request is fine ...', async function() {
 
     function Oauth2SpecService() {
       this.generateToken = function(identifier) {
         return new Promise((resolve, reject) => {
           resolve({
-            code: 200,
+            code: 200000,
             message: "success",
             content: {
               access_token: "123456789"
@@ -66,7 +66,7 @@ describe('Oauth2SpecRoutes : configure', function() {
 
     expect(response.status).to.equal(200);
     var responseTextAsObject = JSON.parse(response.text);
-    expect(responseTextAsObject.code).to.equal(200);
+    expect(responseTextAsObject.code).to.equal(200000);
     expect(responseTextAsObject.content.access_token).to.equal("123456789");
     ligthExpress.server.close();
   });

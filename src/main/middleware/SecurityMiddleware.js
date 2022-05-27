@@ -102,7 +102,8 @@ function SecurityMiddleware(permissionRawString, configuration, subjectDataServi
     }
 
     req.app.locals.secure_context = {
-      subject_identifier: payload.subject_identifier
+      subject_identifier: payload.subject_identifier,
+      subject_id: subject[0].id
     }
     return next();
   }
