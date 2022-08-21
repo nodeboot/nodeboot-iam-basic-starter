@@ -14,6 +14,7 @@ function IamOauth2ElementaryStarter(configuration, subjectDataService, iamDataSe
   this.databaseHelperDataService = databaseHelperDataService;
   this.expressInstance = expressInstance;
   this.securityMiddleware;
+  this.oauth2SpecService;
 
   this.autoConfigure = async () => {
     console.log("Starting Iam oauth2 elementary starter configurations ...");
@@ -33,15 +34,23 @@ function IamOauth2ElementaryStarter(configuration, subjectDataService, iamDataSe
       return false;
     }
 
-    var oauth2SpecService = new Oauth2SpecService(this.subjectDataService, this.configuration);
-    var oauth2SpecRoutes = new Oauth2SpecRoutes(oauth2SpecService, this.expressInstance);
-    await oauth2SpecRoutes.configure();
+    this.oauth2SpecService = new Oauth2SpecService(this.subjectDataService, this.configuration);
+
+    var disableRoutes = this.configuration.getProperty("nodeboot.iam_oauth2_elementary_starter.disableRoutes");
+    if(typeof disableRoutes === "undefined" || disableRoutes === false){
+      var oauth2SpecRoutes = new Oauth2SpecRoutes(this.oauth2SpecService, this.expressInstance);
+      await oauth2SpecRoutes.configure();
+    }
 
     return true;
   }
 
   this.getSecurityMiddleware = (permissionRawString) => {
     return new SecurityMiddleware(permissionRawString, this.configuration, this.subjectDataService, this.iamDataService);
+  }
+
+  this.getOauth2SpecService = () => {
+    return this.oauth2SpecService;
   }
 }
 

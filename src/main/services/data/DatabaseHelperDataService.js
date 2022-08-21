@@ -26,6 +26,7 @@ function DatabaseHelperDataService(dbSession) {
           table.string('identifier', 25).unique().notNullable();
           table.string('secret', 255).notNullable();
           table.string('role', 50).notNullable();
+          table.string('longLiveTokenUuid', 50);
         }).then(async function() {
           dbSession.schema.createTable('iam_permission', async (table) => {
             table.increments('id').primary();

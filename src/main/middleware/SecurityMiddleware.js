@@ -90,6 +90,23 @@ function SecurityMiddleware(permissionRawString, configuration, subjectDataServi
       });
     }
 
+    //validation for long live token
+    //at this point, the token has a valid signature
+    var lltu = payload.lltu;
+    if(typeof lltu !== "undefined" && lltu != ""){
+      //if token has a lltu is because was generated as long live token
+      //no body can send a token with fake lltu (cornerstone of jwt)
+
+      //get longLiveTokenUuid from database
+      var longLiveTokenUuid = subject[0].longLiveTokenUuid;
+      if(lltu != longLiveTokenUuid){
+        return res.json({
+          code: 403004,
+          message: "You are not allowed"
+        });
+      }
+    }
+
     var permissionScope = permissionRawString.split(":");
     var validator = await this.iamDataService.hasPermissions(subject[0].role, permissionScope[0].trim(), permissionScope[1].trim());
 

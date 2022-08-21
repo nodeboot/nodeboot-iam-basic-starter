@@ -40,7 +40,7 @@ describe('Oauth2SpecRoutes : configure', function() {
     ligthExpress.server.close();
   });
 
-  it.only('should return valid token if request is fine ...', async function() {
+  it('should return valid token if request is fine ...', async function() {
 
     function Oauth2SpecService() {
       this.generateToken = function(identifier) {

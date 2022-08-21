@@ -183,6 +183,59 @@ describe('SecurityMiddleware: ensureAuthorization', function() {
     expect(responseTextAsObject.code).to.equal(403003);
 
   });
+
+  it('should return 403 on valid token with lltu != registered in db', async function() {
+
+    var token = jwt.sign({
+      subject_identifier: "jane_doe",
+      lltu: "im-the-fake-lltu",
+    }, "secret", {
+      expiresIn: '3600s'
+    });
+
+    var configuration = {
+      nodeboot: {
+        iam_oauth2_elementary_starter: {
+          jwtSecret: "secret"
+        }
+      }
+    }
+
+    function iamDataService() {
+      this.hasPermissions = function() {
+        return new Promise((resolve, reject) => {
+          resolve({
+            has_permission: "false"
+          })
+        })
+      }
+    }
+
+    function subjectDataService() {
+      this.findSubjectByIdentifier = function(identifier) {
+        return new Promise((resolve, reject) => {
+          resolve([{
+            role: "foo",
+            longLiveTokenUuid: "javadabadoo",
+          }])
+        })
+      }
+    }
+
+    var subjectDataService = new subjectDataService();
+    var iamDataService = new iamDataService();
+    var securityMiddleware = new SecurityMiddleware("foo:bar", configuration, subjectDataService, iamDataService);
+    var ligthExpress = await TestHelper.createLigthExpress();
+    ligthExpress.app.get("/foo", securityMiddleware.ensureAuthorization, function(req, res){
+      return res.send("im the protected")
+    })
+    const response1 = await request(ligthExpress.app).get('/foo').set({ 'Authorization': "Bearer " + token});
+    var responseTextAsObject = JSON.parse(response1.text);
+    expect(responseTextAsObject.code).to.equal(403004);
+
+  });
+
+
   it('should get the protected resource on valid token and valid subject with permission', async function() {
 
     var token = jwt.sign({
@@ -214,6 +267,57 @@ describe('SecurityMiddleware: ensureAuthorization', function() {
         return new Promise((resolve, reject) => {
           resolve([{
             role: "foo"
+          }])
+        })
+      }
+    }
+
+    var subjectDataService = new subjectDataService();
+    var iamDataService = new iamDataService();
+    var securityMiddleware = new SecurityMiddleware("foo:bar", configuration, subjectDataService, iamDataService);
+    var ligthExpress = await TestHelper.createLigthExpress();
+    ligthExpress.app.get("/foo", securityMiddleware.ensureAuthorization, function(req, res){
+      return res.send("im the protected")
+    })
+    const response1 = await request(ligthExpress.app).get('/foo').set({ 'Authorization': "Bearer " + token});
+    expect(response1.status).to.equal(200);
+    expect(response1.text).to.equal("im the protected");
+
+  });
+
+  it('should get the protected resource on valid long live token and valid subject with permission', async function() {
+
+    var token = jwt.sign({
+      subject_identifier: "jane_doe",
+      lltu: "javadabadoo",
+    }, "secret", {
+      expiresIn: '3600s'
+    });
+
+    var configuration = {
+      nodeboot: {
+        iam_oauth2_elementary_starter: {
+          jwtSecret: "secret"
+        }
+      }
+    }
+
+    function iamDataService() {
+      this.hasPermissions = function() {
+        return new Promise((resolve, reject) => {
+          resolve({
+            has_permission: "true"
+          })
+        })
+      }
+    }
+
+    function subjectDataService() {
+      this.findSubjectByIdentifier = function(identifier) {
+        return new Promise((resolve, reject) => {
+          resolve([{
+            role: "foo",
+            longLiveTokenUuid: "javadabadoo",
           }])
         })
       }

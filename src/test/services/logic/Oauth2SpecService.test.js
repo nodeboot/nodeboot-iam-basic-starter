@@ -220,5 +220,41 @@ describe('Oauth2SpecService: generateToken', function() {
     myStub.restore()
   });
 
+  it('should return 200 with non expiration when longLiveTokenUuid is active', async function() {
+    var configuration = {
+      nodeboot:{
+        iam_oauth2_elementary_starter:{
+          jwtSecret:"secret"
+        }
+      }
+    }
+
+    function subjectDataService(){
+      this.findSubjectByIdentifier = function(identifier){
+        return new Promise((resolve, reject) => {
+          resolve([{role:"foo", secret:"bar", longLiveTokenUuid:"super-uuid-foo"}])
+        })
+      }
+    }
+
+    var myStub = sinon.stub(bcrypt, 'compare').callsFake(() => Promise.resolve(true))
+
+    var oauth2SpecService = new Oauth2SpecService(new subjectDataService(), configuration);
+    var response1 = await oauth2SpecService.generateToken({grant_type:"client_credentials", client_id:"foo", client_secret:"bar"});
+    assert(response1);
+    expect(response1.code).to.equal(200000);
+    assert(response1.content);
+    assert(response1.content.access_token);    
+    expect(response1.content.access_token.length>25).to.equal(true);
+    expect(response1.content.expires_in).to.equal(undefined);
+
+    var payoloadEncoded = response1.content.access_token.split(".")[1];
+    let buff = Buffer.from(payoloadEncoded, 'base64');
+    var payload = JSON.parse(buff.toString('ascii'))
+    expect(payload.lltu, "Long live token should have a lltu").to.equal("super-uuid-foo");
+
+    myStub.restore()
+  });
+
 
 });
