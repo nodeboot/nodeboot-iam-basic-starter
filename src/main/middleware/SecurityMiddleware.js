@@ -108,7 +108,8 @@ function SecurityMiddleware(permissionRawString, configuration, subjectDataServi
     }
 
     var permissionScope = permissionRawString.split(":");
-    var validator = await this.iamDataService.hasPermissions(subject[0].role, permissionScope[0].trim(), permissionScope[1].trim());
+    var resource = `${permissionScope[0].trim()}:${permissionScope[1].trim()}`;
+    var validator = await this.iamDataService.hasPermissions(subject[0].role, resource, permissionScope[2].trim());
 
     if(validator.has_permission === "false"){
       res.status(403);

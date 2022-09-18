@@ -173,7 +173,7 @@ describe('SecurityMiddleware: ensureAuthorization', function() {
 
     var subjectDataService = new subjectDataService();
     var iamDataService = new iamDataService();
-    var securityMiddleware = new SecurityMiddleware("foo:bar", configuration, subjectDataService, iamDataService);
+    var securityMiddleware = new SecurityMiddleware("foo:bar:baz", configuration, subjectDataService, iamDataService);
     var ligthExpress = await TestHelper.createLigthExpress();
     ligthExpress.app.get("/foo", securityMiddleware.ensureAuthorization, function(req, res){
       return res.send("im the protected")
@@ -274,7 +274,7 @@ describe('SecurityMiddleware: ensureAuthorization', function() {
 
     var subjectDataService = new subjectDataService();
     var iamDataService = new iamDataService();
-    var securityMiddleware = new SecurityMiddleware("foo:bar", configuration, subjectDataService, iamDataService);
+    var securityMiddleware = new SecurityMiddleware("foo:bar:baz", configuration, subjectDataService, iamDataService);
     var ligthExpress = await TestHelper.createLigthExpress();
     ligthExpress.app.get("/foo", securityMiddleware.ensureAuthorization, function(req, res){
       return res.send("im the protected")
@@ -325,7 +325,7 @@ describe('SecurityMiddleware: ensureAuthorization', function() {
 
     var subjectDataService = new subjectDataService();
     var iamDataService = new iamDataService();
-    var securityMiddleware = new SecurityMiddleware("foo:bar", configuration, subjectDataService, iamDataService);
+    var securityMiddleware = new SecurityMiddleware("foo:bar:baz", configuration, subjectDataService, iamDataService);
     var ligthExpress = await TestHelper.createLigthExpress();
     ligthExpress.app.get("/foo", securityMiddleware.ensureAuthorization, function(req, res){
       return res.send("im the protected")

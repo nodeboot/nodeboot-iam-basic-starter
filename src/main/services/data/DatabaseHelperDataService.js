@@ -32,7 +32,7 @@ function DatabaseHelperDataService(dbSession) {
             table.increments('id').primary();
             table.string('role', 25).notNullable();
             table.string('resource', 50).notNullable();
-            table.string('permission', 150).notNullable();
+            table.string('action', 150).notNullable();
           }).then(async function() {
             var iamPermissionTable = await dbSession.schema.hasTable('iam_permission');
             var userTable = await dbSession.schema.hasTable('iam_subject');

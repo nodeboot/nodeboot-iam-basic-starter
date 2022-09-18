@@ -17,6 +17,18 @@ function SubjectDataService(dbSession) {
       }
     });
   }
+
+  this.createSubject = (subject) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let id = await this.dbSession('iam_subject').insert(subject)
+        resolve(id[0]);
+      } catch (err) {
+        console.log(err);
+        reject(new Error("Sql error while iam_subject was being creating"));
+      }
+    });
+  }
 }
 
 module.exports = SubjectDataService;
