@@ -1,6 +1,6 @@
 {
   "name": "nodeboot-iam-oauth2-elementary-starter",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "iam with an basic and minimal oauth2 implementation",
   "main": "src/main/Index.js",
   "scripts": {

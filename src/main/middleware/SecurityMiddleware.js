@@ -13,6 +13,10 @@ function SecurityMiddleware(permissionRawString, configuration, subjectDataServi
 
   this.ensureAuthorization = async (req, res, next) => {
 
+    if(typeof permissionRawString === 'undefined'){
+      return next();
+    }
+
     if(!ObjectHelper.hasProperty(this.configuration, "nodeboot.iam_oauth2_elementary_starter.jwtSecret")){
       console.log("nodeboot.iam_oauth2_elementary_starter.jwtSecret was not found");
       res.status(500);
@@ -82,6 +86,14 @@ function SecurityMiddleware(permissionRawString, configuration, subjectDataServi
       });
     }
 
+    if(typeof subject[0] ==='undefined'){
+      res.status(403);
+      return res.json({
+        code: 403001,
+        message: "You are not allowed"
+      });
+    }    
+
     if(typeof subject ==='undefined'){
       res.status(403);
       return res.json({
@@ -89,6 +101,14 @@ function SecurityMiddleware(permissionRawString, configuration, subjectDataServi
         message: "You are not allowed"
       });
     }
+
+    if(typeof subject[0].role ==='undefined'){
+      res.status(403);
+      return res.json({
+        code: 403503,
+        message: "You are not allowed"
+      });
+    }    
 
     //validation for long live token
     //at this point, the token has a valid signature
@@ -107,9 +127,23 @@ function SecurityMiddleware(permissionRawString, configuration, subjectDataServi
       }
     }
 
-    var permissionScope = permissionRawString.split(":");
-    var resource = `${permissionScope[0].trim()}:${permissionScope[1].trim()}`;
-    var validator = await this.iamDataService.hasPermissions(subject[0].role, resource, permissionScope[2].trim());
+    //#TODO: Validate the Protected syntax at the server startup 
+    var validator;
+    try {
+      var permissionScope = permissionRawString.split(":");
+      var appIdentifier = this.configuration.getProperty("nodeboot.appIdentifier");
+      var resource = `${appIdentifier}:${permissionScope[0].trim()}`;
+      validator = await this.iamDataService.hasPermissions(subject[0].role, resource, permissionScope[1].trim());
+    } catch (e) {
+      console.log("Failed while route permission was being validating: "+permissionRawString);
+      console.log("Check the expected @Protected pattern: acme-api:bomb:launch");
+      console.log(e);
+      res.status(401);
+      return res.json({
+        code: 401509,
+        message: "Internal error."
+      });
+    }
 
     if(validator.has_permission === "false"){
       res.status(403);
