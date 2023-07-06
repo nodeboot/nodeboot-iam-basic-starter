@@ -12,6 +12,7 @@ function Oauth2SpecRoutes(oauth2SpecService, expressInstance) {
     //TODO: detect if body-parser urlencoded/json are configured
     return new Promise((resolve, reject) => {
       this.expressInstance.post("/oauth2/token", tokenRoute);
+      this.expressInstance.post("/v1/oauth2/token/introspect", introspectTokenRoute);
       console.log(`registered route: Oauth2SpecRoutes.tokenRoute endpoint:/oauth2/token method:post`);
       resolve()
     })
@@ -23,7 +24,7 @@ function Oauth2SpecRoutes(oauth2SpecService, expressInstance) {
       res.status(400);
       return res.json({
         code: 400001,
-        message: "unsuported content type"
+        message: "unsupported content type"
       });
     }
 
@@ -37,6 +38,39 @@ function Oauth2SpecRoutes(oauth2SpecService, expressInstance) {
       return res.json({
         code: 500000,
         message: "internal error"
+      });
+    }
+  }
+
+  //https://www.rfc-editor.org/rfc/rfc7662
+  introspectTokenRoute = async (req, res) => {
+
+    if (!req.is('application/json') && !req.is('application/x-www-form-urlencoded')) {
+      res.status(400);
+      return res.json({
+        code: 400001,
+        message: "unsupported content type"
+      });
+    }
+
+    try {
+      var tokenInfo = await this.oauth2SpecService.introspectToken(req.body.token);
+      res.status(200);
+      tokenInfo.active = true;
+      return res.json({
+        code: 200000,
+        message: "success",
+        content: tokenInfo
+      });
+    } catch (e) {
+      console.log(e);
+      res.status(500);
+      return res.json({
+        code: 500410,
+        message: "token is not active",
+        content: {
+          active: false
+        }
       });
     }
   }

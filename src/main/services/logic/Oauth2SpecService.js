@@ -185,6 +185,10 @@ function Oauth2SpecService(subjectDataService, configuration) {
         return response;
     }
 
+    this.introspectToken = async(token) => {
+      return await jwt.verify(token, this.configuration.nodeboot.iam_oauth2_elementary_starter.jwtSecret);
+    }
+
     generateJwtToken = function(payload, secret, expiresIn) {
         if (typeof expiresIn !== 'undefined') {
             return jwt.sign(payload, secret, {
