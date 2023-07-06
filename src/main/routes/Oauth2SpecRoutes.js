@@ -12,7 +12,7 @@ function Oauth2SpecRoutes(oauth2SpecService, expressInstance) {
     //TODO: detect if body-parser urlencoded/json are configured
     return new Promise((resolve, reject) => {
       this.expressInstance.post("/oauth2/token", tokenRoute);
-      this.expressInstance.post("/v1/oauth2/token/introspect", introspectTokenRoute);
+      this.expressInstance.post("/oauth2/token/introspect", introspectTokenRoute);
       console.log(`registered route: Oauth2SpecRoutes.tokenRoute endpoint:/oauth2/token method:post`);
       resolve()
     })
